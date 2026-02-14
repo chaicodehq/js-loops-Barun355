@@ -18,7 +18,7 @@
  *
  * Validation:
  *   - Agar outcomes array nahi hai ya empty hai,
- *     return: { attempts: 0, success: false, totalWaitTime: 0 }
+ *     return: { attempts: 0, success: "fail", totalWaitTime: 0 }
  *
  * @param {string[]} outcomes - Array of "success" or "fail" for each attempt
  * @returns {{ attempts: number, success: boolean, totalWaitTime: number }}
@@ -36,4 +36,46 @@
  */
 export function upiRetry(outcomes) {
   // Your code here
+
+  if (!Array.isArray(outcomes) || outcomes.length === 0) {
+    return { attempts: 0, success: false, totalWaitTime: 0 };
+  }
+
+  const finalData = {
+    attempts: 0,
+    success: false,
+    totalWaitTime: 0,
+  };
+
+  let counter = 0;
+  do {
+    const outcome = outcomes[counter];
+    
+    if (finalData.attempts > 4) {
+      finalData.attempts = 5;
+      finalData.totalWaitTime = 15;
+      break;
+    }
+    
+    if (outcome === "fail") {
+      // simulating delay for (finalData.totalWaitTime === 0? 1: 2 ** counter)
+      if (finalData.attempts === 4) {
+        finalData.attempts = 5;
+        finalData.totalWaitTime = 15;
+        break;
+      } else {
+        ++finalData.attempts;
+        finalData.totalWaitTime +=
+          finalData.totalWaitTime === 0 ? 1 : 2 ** counter;
+      }
+    } else if (outcome === "success") {
+      ++finalData.attempts;
+      finalData.success = true;
+      break;
+    }
+
+    counter++;
+  } while (counter < outcomes.length);
+  
+  return finalData;
 }
